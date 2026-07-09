@@ -110,6 +110,12 @@
     display: none; margin: 12px 16px 0; width: calc(100% - 32px); padding: 10px 0; border-radius: 8px;
     border: 1px dashed #C9A66B; background: transparent; color: #1F2A37; font-weight: 700; font-size: 13px; cursor: pointer;
   }
+  .info-panel { margin: 10px 16px 0; background: #FFFDF7; border: 1px solid #E4D9BC; border-radius: 10px; padding: 14px; }
+  .info-block { margin-bottom: 14px; }
+  .info-block:last-of-type { margin-bottom: 0; }
+  .info-head { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+  .info-body { font-size: 12.5px; line-height: 1.5; color: #5B6572; }
+  .info-footer { font-size: 11.5px; color: #8A8371; font-style: italic; margin-top: 14px; padding-top: 12px; border-top: 1px dashed #D8CCA8; line-height: 1.5; }
   svg { display: inline-block; vertical-align: middle; }
 </style>
 </head>
@@ -138,6 +144,32 @@
 </div>
 
 <button id="installBtn">📲 Install this app to your home screen</button>
+
+<button class="link-btn" id="infoToggle" onclick="toggleInfo()" style="margin-top:14px;">ℹ️ What counts as Needs, Wants, or Savings?</button>
+<div class="info-panel" id="infoPanel" style="display:none">
+  <div class="info-block">
+    <div class="info-head" style="color:#46586B;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#46586B" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+      Needs
+    </div>
+    <div class="info-body">Things you'd still need even on a tight month — school printing, transport/fare, load or data, and other unavoidable school costs. Since your parents already cover food, this bucket stays light for you — mainly transportation, load, and school supplies.</div>
+  </div>
+  <div class="info-block">
+    <div class="info-head" style="color:#B9562E;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B9562E" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Wants
+    </div>
+    <div class="info-body">Guilt-free spending money — Valorant skins, hangouts, food trips with friends, games, gadgets you don't strictly need. This is the bucket to spend from freely without feeling bad, since it's already been set aside for exactly that.</div>
+  </div>
+  <div class="info-block">
+    <div class="info-head" style="color:#2F6E4E;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2F6E4E" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.7-1-2V5Z"/></svg>
+      Savings
+    </div>
+    <div class="info-body">Untouched money. No "spend from savings" option exists in this app on purpose — treat it as if it doesn't exist for everyday spending. Let it build up for something bigger later (new gear, emergencies, or just a growing cushion).</div>
+  </div>
+  <div class="info-footer">Rule of thumb: if it's something you need to function (school, transport), it's Needs. If it's something you'd enjoy but could skip, it's Wants. If you're not touching it any time soon, it's Savings.</div>
+</div>
 
 <div class="tabs">
   <button class="tab active" id="tabDeposit" onclick="setTab('deposit')">⬇ Log Allowance</button>
@@ -360,6 +392,15 @@ function renderAll() {
   renderTotals();
   renderHistory();
   document.getElementById('backupText').value = JSON.stringify(entries);
+}
+
+function toggleInfo() {
+  const panel = document.getElementById('infoPanel');
+  const showing = panel.style.display === 'block';
+  panel.style.display = showing ? 'none' : 'block';
+  document.getElementById('infoToggle').textContent = showing
+    ? 'ℹ️ What counts as Needs, Wants, or Savings?'
+    : '✕ Hide the breakdown';
 }
 
 function toggleBackup() {

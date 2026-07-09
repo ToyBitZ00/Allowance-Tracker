@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#1F2A37" />
+<meta name="theme-color" content="#171A2E" />
 <title>Allowance Passbook</title>
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icons/icon-192.png" />
@@ -11,111 +11,147 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <style>
+  :root {
+    --bg: #F1F2F7;
+    --ink: #171A2E;
+    --ink-soft: #4B5169;
+    --muted: #8A8FA3;
+    --card: #FFFFFF;
+    --border: #E7E8F0;
+    --primary: #6366F1;
+    --primary-dark: #4F46E5;
+    --needs: #64748B;
+    --wants: #F97316;
+    --savings: #10B981;
+    --danger: #EF4444;
+    --warn: #F59E0B;
+    --shadow: 0 4px 24px rgba(23,26,46,0.07);
+    --shadow-lg: 0 10px 34px rgba(23,26,46,0.16);
+  }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     margin: 0;
-    background: #F3EDDC;
-    font-family: Georgia, "Iowan Old Style", serif;
-    color: #2A3542;
-    padding-bottom: 48px;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    padding-bottom: 56px;
   }
   .cover {
-    background: #1F2A37;
-    color: #F3EDDC;
-    padding: 28px 20px 22px;
-    border-bottom: 3px double #C9A66B;
+    background: linear-gradient(135deg, #1E2140 0%, #171A2E 55%, #2A2160 100%);
+    color: #F4F4FA;
+    padding: 30px 18px 26px;
+    border-radius: 0 0 28px 28px;
+    box-shadow: var(--shadow-lg);
   }
-  .eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #C9A66B; margin-bottom: 4px; }
-  .title { font-size: 26px; font-weight: 700; margin-bottom: 14px; }
+  .eyebrow { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: #A5B4FC; margin-bottom: 4px; font-weight: 600; }
+  .title { font-size: 25px; font-weight: 800; margin-bottom: 18px; letter-spacing: -0.3px; }
   .cards { display: flex; gap: 10px; }
   .card {
-    flex: 1; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 8px;
+    flex: 1; background: rgba(255,255,255,0.08); backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 16px; padding: 12px 10px;
   }
-  .card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #C9C4B4; margin-top: 6px; }
-  .card .amt { font-size: 15px; font-weight: 700; color: #F3EDDC; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
-  .tabs { display: flex; margin: 18px 16px 0; border-bottom: 1px solid rgba(42,53,66,0.2); }
+  .card .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #C4C7E0; margin-top: 8px; font-weight: 600; }
+  .card .amt { font-size: 16px; font-weight: 800; color: #FFFFFF; font-family: ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: -0.3px; }
+  .progress-track { height: 5px; background: rgba(255,255,255,0.16); border-radius: 6px; margin-top: 9px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; border-radius: 6px; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+  .goal-caption { font-size: 9.5px; color: #C4C7E0; margin-top: 5px; line-height: 1.3; }
+  .low-warning {
+    margin-top: 14px; background: rgba(239,68,68,0.16); border: 1px solid rgba(239,68,68,0.35); border-radius: 12px;
+    padding: 9px 12px; font-size: 12px; color: #FEE2E2; display: flex; align-items: center; gap: 6px; line-height: 1.4;
+  }
+  .quick-links { display: flex; gap: 14px; margin: 14px 18px 0; flex-wrap: wrap; }
+  #installBtn {
+    display: none; margin: 14px 18px 0; width: calc(100% - 36px); padding: 11px 0; border-radius: 14px;
+    border: 1.5px dashed var(--primary); background: rgba(99,102,241,0.06); color: var(--primary-dark);
+    font-weight: 700; font-size: 13px; cursor: pointer;
+  }
+  .tabs { display: flex; margin: 20px 18px 0; background: var(--card); border-radius: 14px; padding: 4px; box-shadow: var(--shadow); border: 1px solid var(--border); }
   .tab {
     flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 10px 0; background: transparent; border: none; border-bottom: 2px solid transparent;
-    color: #8A8371; font-family: inherit; font-size: 14px; cursor: pointer;
+    padding: 10px 0; background: transparent; border: none; border-radius: 10px;
+    color: var(--muted); font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; transition: all .2s;
   }
-  .tab.active { border-bottom: 2px solid #C9A66B; color: #2A3542; font-weight: 700; }
-  .panel { margin: 16px 16px 0; background: #FFFDF7; border: 1px solid #E4D9BC; border-radius: 12px; padding: 16px; }
-  label.field { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8A8371; display: block; margin-top: 14px; }
+  .tab.active { background: var(--ink); color: #fff; box-shadow: 0 4px 12px rgba(23,26,46,0.25); }
+  .panel { margin: 14px 18px 0; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); }
+  label.field { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); display: block; margin-top: 14px; font-weight: 700; }
   label.field:first-child { margin-top: 0; }
-  select, input[type=text] {
-    width: 100%; margin-top: 6px; padding: 10px; border-radius: 8px; border: 1px solid #D8CCA8;
-    background: #FBF7ED; font-family: inherit; font-size: 14px; outline: none;
+  select, input[type=text], input[type=number] {
+    width: 100%; margin-top: 7px; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border);
+    background: #FAFAFD; font-family: inherit; font-size: 14.5px; outline: none; color: var(--ink); transition: border-color .15s;
   }
+  select:focus, input:focus { border-color: var(--primary); }
   .amount-row {
-    display: flex; align-items: center; margin-top: 6px; border: 1px solid #D8CCA8;
-    border-radius: 8px; background: #FBF7ED; padding: 0 10px;
+    display: flex; align-items: center; margin-top: 7px; border: 1.5px solid var(--border);
+    border-radius: 12px; background: #FAFAFD; padding: 0 12px; transition: border-color .15s;
   }
-  .amount-row span { color: #8A8371; font-family: ui-monospace, monospace; }
+  .amount-row:focus-within { border-color: var(--primary); }
+  .amount-row span { color: var(--muted); font-family: ui-monospace, monospace; font-weight: 600; }
   .amount-row input {
-    flex: 1; border: none; background: transparent; padding: 10px 8px; font-size: 16px;
-    font-family: ui-monospace, monospace; outline: none;
+    flex: 1; border: none; background: transparent; padding: 12px 8px; font-size: 17px;
+    font-family: ui-monospace, monospace; outline: none; margin: 0;
   }
-  .bucket-choice { display: flex; gap: 8px; margin-top: 6px; }
+  .bucket-choice { display: flex; gap: 8px; margin-top: 7px; }
   .bucket-btn {
-    flex: 1; padding: 8px 0; border-radius: 8px; border: 1px solid #D8CCA8; background: #FBF7ED;
-    color: #5B6572; font-weight: 600; font-family: inherit; cursor: pointer;
+    flex: 1; padding: 10px 0; border-radius: 12px; border: 1.5px solid var(--border); background: #FAFAFD;
+    color: var(--ink-soft); font-weight: 700; font-family: inherit; cursor: pointer; font-size: 13.5px; transition: all .15s;
   }
-  .bucket-btn.active-needs { border-color: #46586B; background: #46586B18; color: #46586B; }
-  .bucket-btn.active-wants { border-color: #B9562E; background: #B9562E18; color: #B9562E; }
-  .error { color: #B9562E; font-size: 13px; margin-top: 10px; }
+  .bucket-btn.active-needs { border-color: var(--needs); background: #64748B14; color: var(--needs); }
+  .bucket-btn.active-wants { border-color: var(--wants); background: #F9731614; color: var(--wants); }
+  .error { color: var(--danger); font-size: 13px; margin-top: 10px; font-weight: 600; }
   .submit-btn {
-    width: 100%; margin-top: 16px; padding: 12px 0; border-radius: 8px; border: none;
-    background: #1F2A37; color: #F3EDDC; font-weight: 700; font-size: 14px;
+    width: 100%; margin-top: 18px; padding: 14px 0; border-radius: 14px; border: none;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; font-weight: 700; font-size: 14.5px;
     display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(99,102,241,0.35); transition: transform .1s;
   }
-  .split-preview { margin-top: 12px; font-size: 12px; color: #5B6572; border-top: 1px dashed #D8CCA8; padding-top: 10px; }
-  .split-preview .row { display: flex; justify-content: space-between; }
-  .split-preview .row span:last-child { font-family: ui-monospace, monospace; }
-  .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8A8371; margin: 20px 16px 8px; display: flex; align-items: center; gap: 6px; }
-  .empty-note { margin: 0 16px; color: #8A8371; font-size: 13px; font-style: italic; }
+  .submit-btn:active { transform: scale(0.98); }
+  .split-preview { margin-top: 14px; font-size: 12.5px; color: var(--ink-soft); border-top: 1px dashed var(--border); padding-top: 12px; }
+  .split-preview .row { display: flex; justify-content: space-between; padding: 3px 0; }
+  .split-preview .row span:last-child { font-family: ui-monospace, monospace; font-weight: 700; color: var(--ink); }
+  .section-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 24px 18px 10px; display: flex; align-items: center; gap: 6px; font-weight: 700; }
+  .empty-note { margin: 0 18px; color: var(--muted); font-size: 13.5px; font-style: italic; }
   .entry {
-    margin: 0 16px 8px; background: #FFFDF7; border: 1px solid #E4D9BC; border-radius: 10px; padding: 10px 12px;
-    display: flex; justify-content: space-between; align-items: center;
+    margin: 0 18px 9px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px;
+    display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow);
   }
-  .entry .amt { font-size: 13px; font-weight: 700; }
-  .entry .amt.deposit { color: #2F6E4E; }
-  .entry .amt.spend { color: #B9562E; }
-  .entry .meta { font-size: 11px; color: #8A8371; }
-  .del-btn { background: none; border: none; color: #C9A66B; cursor: pointer; padding: 6px; }
-  .link-btn { background: none; border: none; color: #8A8371; font-size: 12px; text-decoration: underline; cursor: pointer; padding: 0; margin: 0 16px; }
-  .backup-panel { margin: 10px 16px 0; background: #FFFDF7; border: 1px solid #E4D9BC; border-radius: 10px; padding: 14px; }
+  .entry .amt { font-size: 13.5px; font-weight: 700; }
+  .entry .amt.deposit { color: var(--savings); }
+  .entry .amt.spend { color: var(--wants); }
+  .entry .meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .del-btn { background: #F4F4FA; border: none; color: var(--muted); cursor: pointer; padding: 8px; border-radius: 10px; display: flex; }
+  .del-btn:active { background: #E7E8F0; }
+  .link-btn { background: none; border: none; color: var(--primary-dark); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 0; margin: 0; }
+  .backup-panel, .goal-panel, .info-panel { margin: 12px 18px 0; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); }
   textarea {
-    width: 100%; font-size: 11px; font-family: ui-monospace, monospace; border: 1px solid #D8CCA8;
-    border-radius: 8px; padding: 8px; background: #FBF7ED; resize: none;
+    width: 100%; font-size: 11px; font-family: ui-monospace, monospace; border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 10px; background: #FAFAFD; resize: none; color: var(--ink);
   }
   .copy-btn {
-    display: flex; align-items: center; gap: 5px; background: #1F2A37; color: #F3EDDC; border: none;
-    border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 5px; background: var(--ink); color: #fff; border: none;
+    border-radius: 10px; padding: 6px 12px; font-size: 11.5px; font-weight: 700; cursor: pointer;
   }
-  .copy-btn.copied { background: #2F6E4E; }
+  .copy-btn.copied { background: var(--savings); }
   .restore-btn {
-    margin-top: 8px; width: 100%; padding: 10px 0; border-radius: 8px; border: none;
-    background: #46586B; color: #F3EDDC; font-weight: 700; font-size: 13px; cursor: pointer;
+    margin-top: 10px; width: 100%; padding: 12px 0; border-radius: 12px; border: none;
+    background: var(--ink-soft); color: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer;
   }
-  .restore-btn:disabled { background: #C9C4B4; cursor: default; }
-  .msg-ok { color: #2F6E4E; }
-  .msg-bad { color: #B9562E; }
+  .restore-btn:disabled { background: #C9CBD9; cursor: default; }
+  .msg-ok { color: var(--savings); font-weight: 600; }
+  .msg-bad { color: var(--danger); font-weight: 600; }
   #toast {
-    position: fixed; bottom: 20px; left: 16px; right: 16px; background: #2F6E4E; color: #F3EDDC;
-    border-radius: 10px; padding: 12px 14px; display: none; align-items: center; gap: 8px;
-    font-size: 13px; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,0.25); z-index: 50;
+    position: fixed; bottom: 22px; left: 18px; right: 18px; background: var(--ink); color: #fff;
+    border-radius: 14px; padding: 13px 16px; display: none; align-items: center; gap: 8px;
+    font-size: 13.5px; font-weight: 600; box-shadow: var(--shadow-lg); z-index: 50;
   }
-  #installBtn {
-    display: none; margin: 12px 16px 0; width: calc(100% - 32px); padding: 10px 0; border-radius: 8px;
-    border: 1px dashed #C9A66B; background: transparent; color: #1F2A37; font-weight: 700; font-size: 13px; cursor: pointer;
-  }
-  .info-panel { margin: 10px 16px 0; background: #FFFDF7; border: 1px solid #E4D9BC; border-radius: 10px; padding: 14px; }
-  .info-block { margin-bottom: 14px; }
+  .info-block { margin-bottom: 16px; }
   .info-block:last-of-type { margin-bottom: 0; }
-  .info-head { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; margin-bottom: 4px; }
-  .info-body { font-size: 12.5px; line-height: 1.5; color: #5B6572; }
-  .info-footer { font-size: 11.5px; color: #8A8371; font-style: italic; margin-top: 14px; padding-top: 12px; border-top: 1px dashed #D8CCA8; line-height: 1.5; }
+  .info-head { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 13.5px; margin-bottom: 5px; }
+  .info-body { font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+  .info-footer { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border); line-height: 1.55; }
+  .goal-progress-mini { margin-top: 12px; background: #F4F4FA; border-radius: 12px; padding: 12px; }
+  .goal-progress-mini .track { height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; margin-top: 8px; }
+  .goal-progress-mini .fill { height: 100%; background: linear-gradient(90deg, var(--savings), #34D399); border-radius: 8px; transition: width .4s ease; }
+  .goal-row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
   svg { display: inline-block; vertical-align: middle; }
 </style>
 </head>
@@ -125,50 +161,73 @@
   <div class="eyebrow">Personal Ledger</div>
   <div class="title">Allowance Passbook</div>
   <div class="cards">
-    <div class="card" style="border:1px solid #46586B55">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#46586B" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+    <div class="card">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
       <div class="label">Needs</div>
       <div class="amt" id="totalNeeds">₱0.00</div>
+      <div class="progress-track"><div class="progress-fill" id="barNeeds" style="background:#94A3B8"></div></div>
     </div>
-    <div class="card" style="border:1px solid #B9562E55">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B9562E" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <div class="card">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FB923C" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       <div class="label">Wants</div>
       <div class="amt" id="totalWants">₱0.00</div>
+      <div class="progress-track"><div class="progress-fill" id="barWants" style="background:#FB923C"></div></div>
     </div>
-    <div class="card" style="border:1px solid #2F6E4E55">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2F6E4E" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.7-1-2V5Z"/></svg>
+    <div class="card">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.7-1-2V5Z"/></svg>
       <div class="label">Savings</div>
       <div class="amt" id="totalSavings">₱0.00</div>
+      <div class="progress-track"><div class="progress-fill" id="barSavings" style="background:#34D399"></div></div>
+      <div class="goal-caption" id="goalCaption">Set a goal below</div>
     </div>
   </div>
+  <div id="lowBalanceWarning" class="low-warning" style="display:none"></div>
 </div>
 
 <button id="installBtn">📲 Install this app to your home screen</button>
 
-<button class="link-btn" id="infoToggle" onclick="toggleInfo()" style="margin-top:14px;">ℹ️ What counts as Needs, Wants, or Savings?</button>
+<div class="quick-links" style="margin-top:16px;">
+  <button class="link-btn" id="infoToggle" onclick="toggleInfo()">ℹ️ Needs / Wants / Savings?</button>
+  <button class="link-btn" id="goalToggle" onclick="toggleGoal()">🎯 Set savings goal</button>
+</div>
+
 <div class="info-panel" id="infoPanel" style="display:none">
   <div class="info-block">
-    <div class="info-head" style="color:#46586B;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#46586B" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+    <div class="info-head" style="color:#64748B;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
       Needs
     </div>
     <div class="info-body">Things you'd still need even on a tight month — school printing, transport/fare, load or data, and other unavoidable school costs. Since your parents already cover food, this bucket stays light for you — mainly transportation, load, and school supplies.</div>
   </div>
   <div class="info-block">
-    <div class="info-head" style="color:#B9562E;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B9562E" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <div class="info-head" style="color:#F97316;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F97316" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       Wants
     </div>
     <div class="info-body">Guilt-free spending money — Valorant skins, hangouts, food trips with friends, games, gadgets you don't strictly need. This is the bucket to spend from freely without feeling bad, since it's already been set aside for exactly that.</div>
   </div>
   <div class="info-block">
-    <div class="info-head" style="color:#2F6E4E;">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2F6E4E" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.7-1-2V5Z"/></svg>
+    <div class="info-head" style="color:#10B981;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.7-1-2V5Z"/></svg>
       Savings
     </div>
     <div class="info-body">Untouched money. No "spend from savings" option exists in this app on purpose — treat it as if it doesn't exist for everyday spending. Let it build up for something bigger later (new gear, emergencies, or just a growing cushion).</div>
   </div>
   <div class="info-footer">Rule of thumb: if it's something you need to function (school, transport), it's Needs. If it's something you'd enjoy but could skip, it's Wants. If you're not touching it any time soon, it's Savings.</div>
+</div>
+
+<div class="goal-panel" id="goalPanel" style="display:none">
+  <label class="field">Savings goal amount</label>
+  <div class="amount-row">
+    <span>₱</span>
+    <input type="number" inputmode="decimal" id="goalInput" placeholder="e.g. 5000" />
+  </div>
+  <button class="submit-btn" onclick="saveGoalValue()">🎯 Save Goal</button>
+  <div class="goal-progress-mini" id="goalMini" style="display:none">
+    <div class="goal-row"><span id="goalMiniText"></span><span id="goalMiniPct"></span></div>
+    <div class="track"><div class="fill" id="goalMiniFill"></div></div>
+  </div>
+  <button class="link-btn" onclick="clearGoal()" style="margin-top:14px;">Clear goal</button>
 </div>
 
 <div class="tabs">
@@ -212,26 +271,29 @@
 <div class="section-label">🧾 History</div>
 <div id="historyList"></div>
 
-<button class="link-btn" id="backupToggle" onclick="toggleBackup()">Backup &amp; restore (in case entries ever reset)</button>
+<div class="quick-links" style="margin:20px 18px 0;">
+  <button class="link-btn" id="backupToggle" onclick="toggleBackup()">Backup &amp; restore</button>
+</div>
 <div class="backup-panel" id="backupPanel" style="display:none">
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-    <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#8A8371;">Your data</div>
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700;">Your data</div>
     <button class="copy-btn" id="copyBtn" onclick="copyBackup()">Copy</button>
   </div>
   <textarea id="backupText" rows="3" readonly onclick="this.select()"></textarea>
-  <div style="font-size:11px; color:#8A8371; margin-top:4px;">Tap Copy, then paste into a new Note and save it.</div>
+  <div style="font-size:11.5px; color:var(--muted); margin-top:5px;">Tap Copy, then paste into a new Note and save it.</div>
 
-  <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#8A8371; margin-top:16px; margin-bottom:6px;">Restore from a backup</div>
+  <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-top:18px; margin-bottom:7px; font-weight:700;">Restore from a backup</div>
   <textarea id="restoreInput" rows="3" placeholder="Paste your saved backup text here" oninput="document.getElementById('restoreBtn').disabled = !this.value.trim()"></textarea>
   <button class="restore-btn" id="restoreBtn" disabled onclick="restoreFromBackup()">Restore</button>
-  <div id="restoreMsg" style="font-size:12px; margin-top:8px; display:none;"></div>
-  <div style="font-size:11px; color:#8A8371; margin-top:10px;">Restoring replaces everything currently shown with the backup you paste in.</div>
+  <div id="restoreMsg" style="font-size:12.5px; margin-top:9px; display:none;"></div>
+  <div style="font-size:11.5px; color:var(--muted); margin-top:11px;">Restoring replaces everything currently shown with the backup you paste in.</div>
 </div>
 
 <div id="toast"></div>
 
 <script>
 const STORAGE_KEY = 'passbook-entries-v1';
+const GOAL_KEY = 'passbook-goal-v1';
 const PHASES = {
   phase1: { needs: 0.5, wants: 0.3, savings: 0.2 },
   phase2: { needs: 0, wants: 0.6, savings: 0.4 },
@@ -240,8 +302,10 @@ const PHASES = {
 const bucketLabel = { needs: 'Needs', wants: 'Wants', savings: 'Savings' };
 
 let entries = [];
+let goal = null;
 let tab = 'deposit';
 let spendBucket = 'needs';
+let goalWasReached = false;
 
 function peso(n) {
   return '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -252,6 +316,10 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY);
     entries = raw ? JSON.parse(raw) : [];
   } catch { entries = []; }
+  try {
+    const rawGoal = localStorage.getItem(GOAL_KEY);
+    goal = rawGoal ? JSON.parse(rawGoal).amount : null;
+  } catch { goal = null; }
   renderAll();
 }
 
@@ -273,6 +341,14 @@ function getTotals() {
     }
   });
   return t;
+}
+
+function getAllocated() {
+  const a = { needs: 0, wants: 0, savings: 0 };
+  entries.forEach((e) => {
+    if (e.type === 'deposit') { a.needs += e.needs; a.wants += e.wants; a.savings += e.savings; }
+  });
+  return a;
 }
 
 function setTab(t) {
@@ -355,9 +431,92 @@ function removeEntry(id) {
 
 function renderTotals() {
   const t = getTotals();
+  const a = getAllocated();
   document.getElementById('totalNeeds').textContent = peso(t.needs);
   document.getElementById('totalWants').textContent = peso(t.wants);
   document.getElementById('totalSavings').textContent = peso(t.savings);
+
+  const warnings = [];
+  [['needs','Needs','barNeeds','#94A3B8'], ['wants','Wants','barWants','#FB923C']].forEach(([key, label, barId, normalColor]) => {
+    const balance = t[key];
+    const allocated = a[key];
+    const bar = document.getElementById(barId);
+    let pct = allocated > 0 ? Math.max(0, Math.min(100, (balance / allocated) * 100)) : 0;
+    bar.style.width = pct + '%';
+    if (balance <= 0.009 && allocated > 0) {
+      bar.style.background = '#EF4444';
+      warnings.push(`⚠️ ${label} is fully spent — nothing left in this bucket right now.`);
+    } else if (pct <= 15 && allocated > 0) {
+      bar.style.background = '#F59E0B';
+      warnings.push(`${label} is running low — only ${peso(balance)} left.`);
+    } else {
+      bar.style.background = normalColor;
+    }
+  });
+
+  const warnEl = document.getElementById('lowBalanceWarning');
+  if (warnings.length) {
+    warnEl.style.display = 'flex';
+    warnEl.innerHTML = warnings.join('<br>');
+  } else {
+    warnEl.style.display = 'none';
+  }
+
+  // Savings goal progress
+  const savingsBar = document.getElementById('barSavings');
+  const caption = document.getElementById('goalCaption');
+  if (goal && goal > 0) {
+    const pct = Math.max(0, Math.min(100, (t.savings / goal) * 100));
+    savingsBar.style.width = pct + '%';
+    if (t.savings >= goal) {
+      caption.textContent = `🎉 Goal reached! ${peso(t.savings)} / ${peso(goal)}`;
+      if (!goalWasReached) { showToast('🎉 Savings goal reached! Nice work.'); goalWasReached = true; }
+    } else {
+      caption.textContent = `${peso(t.savings)} / ${peso(goal)} · ${pct.toFixed(0)}%`;
+      goalWasReached = false;
+    }
+  } else {
+    savingsBar.style.width = '0%';
+    caption.textContent = 'Set a goal below';
+  }
+
+  // Mini goal panel preview
+  const mini = document.getElementById('goalMini');
+  if (goal && goal > 0) {
+    mini.style.display = 'block';
+    const pct = Math.max(0, Math.min(100, (t.savings / goal) * 100));
+    document.getElementById('goalMiniFill').style.width = pct + '%';
+    document.getElementById('goalMiniText').textContent = `${peso(t.savings)} of ${peso(goal)}`;
+    document.getElementById('goalMiniPct').textContent = (t.savings >= goal ? '🎉 ' : '') + pct.toFixed(0) + '%';
+  } else {
+    mini.style.display = 'none';
+  }
+}
+
+function saveGoalValue() {
+  const val = parseFloat(document.getElementById('goalInput').value);
+  if (!val || val <= 0) { showToast('Enter a valid goal amount.', true); return; }
+  goal = val;
+  goalWasReached = false;
+  try { localStorage.setItem(GOAL_KEY, JSON.stringify({ amount: val })); } catch {}
+  document.getElementById('goalInput').value = '';
+  renderTotals();
+  showToast(`Savings goal set to ${peso(val)}.`);
+}
+
+function clearGoal() {
+  goal = null;
+  goalWasReached = false;
+  try { localStorage.removeItem(GOAL_KEY); } catch {}
+  renderTotals();
+  showToast('Goal cleared.');
+}
+
+function toggleGoal() {
+  const panel = document.getElementById('goalPanel');
+  const showing = panel.style.display === 'block';
+  panel.style.display = showing ? 'none' : 'block';
+  if (!showing && goal) document.getElementById('goalInput').value = goal;
 }
 
 function renderHistory() {
@@ -398,18 +557,12 @@ function toggleInfo() {
   const panel = document.getElementById('infoPanel');
   const showing = panel.style.display === 'block';
   panel.style.display = showing ? 'none' : 'block';
-  document.getElementById('infoToggle').textContent = showing
-    ? 'ℹ️ What counts as Needs, Wants, or Savings?'
-    : '✕ Hide the breakdown';
 }
 
 function toggleBackup() {
   const panel = document.getElementById('backupPanel');
   const showing = panel.style.display === 'block';
   panel.style.display = showing ? 'none' : 'block';
-  document.getElementById('backupToggle').textContent = showing
-    ? 'Backup & restore (in case entries ever reset)'
-    : 'Hide backup & restore';
   if (!showing) document.getElementById('backupText').value = JSON.stringify(entries);
 }
 
@@ -452,7 +605,7 @@ let toastTimer;
 function showToast(msg, isError) {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.style.background = isError ? '#B9562E' : '#2F6E4E';
+  el.style.background = isError ? '#EF4444' : '#171A2E';
   el.style.display = 'flex';
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.style.display = 'none'; }, 2500);

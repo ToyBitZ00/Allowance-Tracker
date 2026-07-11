@@ -110,18 +110,21 @@
   .split-preview .row span:last-child { font-family: ui-monospace, monospace; font-weight: 700; color: var(--ink); }
   .section-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 24px 18px 10px; display: flex; align-items: center; gap: 6px; font-weight: 700; }
   .empty-note { margin: 0 18px; color: var(--muted); font-size: 13.5px; font-style: italic; }
+
+  /* History entries — accent bar + icon reflect deposit vs spend + bucket color */
   .entry {
-    margin: 0 18px 9px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px;
-    display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow);
+    margin: 0 18px 9px; background: var(--card); border: 1px solid var(--border); border-left: 4px solid transparent;
+    border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow);
   }
+  .entry-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .entry-content { flex: 1; min-width: 0; }
   .entry .amt { font-size: 13.5px; font-weight: 700; }
-  .entry .amt.deposit { color: var(--savings); }
-  .entry .amt.spend { color: var(--wants); }
   .entry .meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-  .del-btn { background: #F4F4FA; border: none; color: var(--muted); cursor: pointer; padding: 8px; border-radius: 10px; display: flex; }
+  .del-btn { background: #F4F4FA; border: none; color: var(--muted); cursor: pointer; padding: 8px; border-radius: 10px; display: flex; flex-shrink: 0; }
   .del-btn:active { background: #E7E8F0; }
+
   .link-btn { background: none; border: none; color: var(--primary-dark); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 0; margin: 0; }
-  .backup-panel, .goal-panel, .info-panel { margin: 12px 18px 0; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); }
+  .backup-panel, .goal-panel, .info-panel, .split-panel { margin: 12px 18px 0; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); }
   textarea {
     width: 100%; font-size: 11px; font-family: ui-monospace, monospace; border: 1.5px solid var(--border);
     border-radius: 12px; padding: 10px; background: #FAFAFD; resize: none; color: var(--ink);
@@ -152,6 +155,16 @@
   .goal-progress-mini .track { height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; margin-top: 8px; }
   .goal-progress-mini .fill { height: 100%; background: linear-gradient(90deg, var(--savings), #34D399); border-radius: 8px; transition: width .4s ease; }
   .goal-row { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+
+  /* Split editor */
+  .split-row { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .split-row:last-child { border-bottom: none; }
+  .split-row-title { font-size: 13.5px; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+  .split-inputs { display: flex; gap: 8px; }
+  .split-field { flex: 1; }
+  .split-field label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 5px; }
+  .split-field input { margin-top: 0; padding: 9px; font-size: 13.5px; text-align: center; }
+  .split-sum { font-size: 11.5px; font-weight: 700; margin-top: 8px; text-align: right; }
   svg { display: inline-block; vertical-align: middle; }
 </style>
 </head>
@@ -189,6 +202,7 @@
 <div class="quick-links" style="margin-top:16px;">
   <button class="link-btn" id="infoToggle" onclick="toggleInfo()">ℹ️ Needs / Wants / Savings?</button>
   <button class="link-btn" id="goalToggle" onclick="toggleGoal()">🎯 Set savings goal</button>
+  <button class="link-btn" id="splitToggle" onclick="toggleSplitPanel()">⚙️ Edit split %</button>
 </div>
 
 <div class="info-panel" id="infoPanel" style="display:none">
@@ -230,6 +244,13 @@
   <button class="link-btn" onclick="clearGoal()" style="margin-top:14px;">Clear goal</button>
 </div>
 
+<div class="split-panel" id="splitPanel" style="display:none">
+  <div id="splitRows"></div>
+  <div id="splitError" class="error" style="display:none"></div>
+  <button class="submit-btn" onclick="saveSplits()">💾 Save Splits</button>
+  <button class="link-btn" onclick="resetSplits()" style="margin-top:14px;">Reset to defaults</button>
+</div>
+
 <div class="tabs">
   <button class="tab active" id="tabDeposit" onclick="setTab('deposit')">⬇ Log Allowance</button>
   <button class="tab" id="tabSpend" onclick="setTab('spend')">⬆ Log Spend</button>
@@ -238,11 +259,7 @@
 <div class="panel">
   <div id="depositFields">
     <label class="field">Which allowance is this?</label>
-    <select id="phaseSelect" onchange="renderSplitPreview()">
-      <option value="phase1">Bonus (2-month lump) — 50/30/20</option>
-      <option value="phase2">Regular ₱1,000/mo — 60/40</option>
-      <option value="windfall">Surprise / out-of-the-blue — 70/30</option>
-    </select>
+    <select id="phaseSelect" onchange="renderSplitPreview()"></select>
   </div>
   <div id="spendFields" style="display:none">
     <label class="field">Spend from</label>
@@ -294,21 +311,44 @@
 <script>
 const STORAGE_KEY = 'passbook-entries-v1';
 const GOAL_KEY = 'passbook-goal-v1';
-const PHASES = {
+const SPLIT_KEY = 'passbook-splits-v1';
+
+const DEFAULT_PHASES = {
   phase1: { needs: 0.5, wants: 0.3, savings: 0.2 },
   phase2: { needs: 0, wants: 0.6, savings: 0.4 },
   windfall: { needs: 0, wants: 0.7, savings: 0.3 },
 };
+const PHASE_META = [
+  { key: 'phase1', title: 'Bonus (2-month lump)' },
+  { key: 'phase2', title: 'Regular ₱1,000/mo' },
+  { key: 'windfall', title: 'Surprise / out-of-the-blue' },
+];
 const bucketLabel = { needs: 'Needs', wants: 'Wants', savings: 'Savings' };
+
+// Colors kept in sync with the CSS custom properties, used for inline-styled history entries
+const NEEDS_COLOR = '#64748B';
+const WANTS_COLOR = '#F97316';
+const DEPOSIT_COLOR = '#4F46E5'; // primary-dark, distinct from any single bucket since a deposit touches all three
 
 let entries = [];
 let goal = null;
+let phases = clonePhases(DEFAULT_PHASES);
 let tab = 'deposit';
 let spendBucket = 'needs';
 let goalWasReached = false;
 
+function clonePhases(p) { return JSON.parse(JSON.stringify(p)); }
+
 function peso(n) {
   return '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function isValidPhasesObject(obj) {
+  if (!obj || typeof obj !== 'object') return false;
+  return PHASE_META.every((m) => {
+    const p = obj[m.key];
+    return p && typeof p.needs === 'number' && typeof p.wants === 'number' && typeof p.savings === 'number';
+  });
 }
 
 function load() {
@@ -320,6 +360,12 @@ function load() {
     const rawGoal = localStorage.getItem(GOAL_KEY);
     goal = rawGoal ? JSON.parse(rawGoal).amount : null;
   } catch { goal = null; }
+  try {
+    const rawSplits = localStorage.getItem(SPLIT_KEY);
+    const parsed = rawSplits ? JSON.parse(rawSplits) : null;
+    phases = isValidPhasesObject(parsed) ? parsed : clonePhases(DEFAULT_PHASES);
+  } catch { phases = clonePhases(DEFAULT_PHASES); }
+  buildPhaseOptions();
   renderAll();
 }
 
@@ -329,6 +375,24 @@ function save() {
   } catch {
     showToast("Couldn't save — check your device storage.", true);
   }
+}
+
+function savePhases() {
+  try { localStorage.setItem(SPLIT_KEY, JSON.stringify(phases)); } catch {}
+}
+
+function buildPhaseOptions() {
+  const sel = document.getElementById('phaseSelect');
+  const prevVal = sel.value || 'phase1';
+  sel.innerHTML = PHASE_META.map((m) => {
+    const p = phases[m.key];
+    const parts = [];
+    if (p.needs > 0) parts.push(Math.round(p.needs * 100));
+    parts.push(Math.round(p.wants * 100));
+    parts.push(Math.round(p.savings * 100));
+    return `<option value="${m.key}">${m.title} — ${parts.join('/')}</option>`;
+  }).join('');
+  sel.value = PHASE_META.some((m) => m.key === prevVal) ? prevVal : 'phase1';
 }
 
 function getTotals() {
@@ -381,7 +445,7 @@ function renderSplitPreview() {
   const el = document.getElementById('splitPreview');
   const amt = parseFloat(document.getElementById('amountInput').value);
   if (tab !== 'deposit' || !amt || amt <= 0) { el.style.display = 'none'; return; }
-  const p = PHASES[document.getElementById('phaseSelect').value];
+  const p = phases[document.getElementById('phaseSelect').value];
   let html = '';
   Object.entries(p).forEach(([k, v]) => {
     if (v > 0) html += `<div class="row"><span>${k[0].toUpperCase()+k.slice(1)}</span><span>${peso(amt * v)}</span></div>`;
@@ -398,7 +462,7 @@ function handleSubmit() {
 
   if (tab === 'deposit') {
     const phaseKey = document.getElementById('phaseSelect').value;
-    const p = PHASES[phaseKey];
+    const p = phases[phaseKey];
     entries.unshift({
       id: Date.now() + '-' + Math.random().toString(36).slice(2,7),
       type: 'deposit', phase: phaseKey, amount: amt,
@@ -519,6 +583,80 @@ function toggleGoal() {
   if (!showing && goal) document.getElementById('goalInput').value = goal;
 }
 
+// ---- Split editor ----
+function renderSplitEditor() {
+  const rows = PHASE_META.map((m) => {
+    const p = phases[m.key];
+    return `<div class="split-row">
+      <div class="split-row-title">${m.title}</div>
+      <div class="split-inputs">
+        <div class="split-field"><label>Needs %</label><input type="number" min="0" max="100" id="split-${m.key}-needs" value="${Math.round(p.needs*100)}" oninput="updateSplitSum('${m.key}')" /></div>
+        <div class="split-field"><label>Wants %</label><input type="number" min="0" max="100" id="split-${m.key}-wants" value="${Math.round(p.wants*100)}" oninput="updateSplitSum('${m.key}')" /></div>
+        <div class="split-field"><label>Savings %</label><input type="number" min="0" max="100" id="split-${m.key}-savings" value="${Math.round(p.savings*100)}" oninput="updateSplitSum('${m.key}')" /></div>
+      </div>
+      <div class="split-sum" id="split-sum-${m.key}"></div>
+    </div>`;
+  }).join('');
+  document.getElementById('splitRows').innerHTML = rows;
+  document.getElementById('splitError').style.display = 'none';
+  PHASE_META.forEach((m) => updateSplitSum(m.key));
+}
+
+function updateSplitSum(key) {
+  const n = parseFloat(document.getElementById(`split-${key}-needs`).value) || 0;
+  const w = parseFloat(document.getElementById(`split-${key}-wants`).value) || 0;
+  const s = parseFloat(document.getElementById(`split-${key}-savings`).value) || 0;
+  const sum = n + w + s;
+  const el = document.getElementById(`split-sum-${key}`);
+  el.textContent = `Total: ${sum}%`;
+  el.style.color = Math.abs(sum - 100) < 0.5 ? 'var(--savings)' : 'var(--danger)';
+}
+
+function saveSplits() {
+  const errorEl = document.getElementById('splitError');
+  errorEl.style.display = 'none';
+  const newPhases = {};
+  for (const m of PHASE_META) {
+    const n = parseFloat(document.getElementById(`split-${m.key}-needs`).value);
+    const w = parseFloat(document.getElementById(`split-${m.key}-wants`).value);
+    const s = parseFloat(document.getElementById(`split-${m.key}-savings`).value);
+    if ([n, w, s].some((v) => isNaN(v) || v < 0)) {
+      errorEl.textContent = 'Enter valid non-negative percentages for all fields.';
+      errorEl.style.display = 'block';
+      return;
+    }
+    const sum = n + w + s;
+    if (Math.abs(sum - 100) > 0.5) {
+      errorEl.textContent = `${m.title} splits must add up to 100% (currently ${sum}%).`;
+      errorEl.style.display = 'block';
+      return;
+    }
+    newPhases[m.key] = { needs: n / 100, wants: w / 100, savings: s / 100 };
+  }
+  phases = newPhases;
+  savePhases();
+  buildPhaseOptions();
+  renderSplitPreview();
+  showToast('Splits updated.');
+}
+
+function resetSplits() {
+  phases = clonePhases(DEFAULT_PHASES);
+  savePhases();
+  renderSplitEditor();
+  buildPhaseOptions();
+  renderSplitPreview();
+  showToast('Splits reset to defaults.');
+}
+
+function toggleSplitPanel() {
+  const panel = document.getElementById('splitPanel');
+  const showing = panel.style.display === 'block';
+  panel.style.display = showing ? 'none' : 'block';
+  if (!showing) renderSplitEditor();
+}
+
+// ---- History ----
 function renderHistory() {
   const el = document.getElementById('historyList');
   if (entries.length === 0) {
@@ -527,19 +665,36 @@ function renderHistory() {
   }
   el.innerHTML = entries.map((e) => {
     const dateStr = new Date(e.date).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
-    const label = e.type === 'deposit'
-      ? `+ ${peso(e.amount)} deposited`
-      : `− ${peso(e.amount)} from ${bucketLabel[e.bucket]}`;
-    const cls = e.type === 'deposit' ? 'deposit' : 'spend';
-    return `<div class="entry">
-      <div>
-        <div class="amt ${cls}">${label}</div>
-        <div class="meta">${dateStr}${e.note ? ' · ' + escapeHtml(e.note) : ''}</div>
-      </div>
-      <button class="del-btn" onclick="removeEntry('${e.id}')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-      </button>
-    </div>`;
+    if (e.type === 'deposit') {
+      const label = `+ ${peso(e.amount)} deposited`;
+      return `<div class="entry" style="border-left-color:${DEPOSIT_COLOR}">
+        <div class="entry-icon" style="background:${DEPOSIT_COLOR}1A;color:${DEPOSIT_COLOR}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+        </div>
+        <div class="entry-content">
+          <div class="amt" style="color:${DEPOSIT_COLOR}">${label}</div>
+          <div class="meta">${dateStr}${e.note ? ' · ' + escapeHtml(e.note) : ''}</div>
+        </div>
+        <button class="del-btn" onclick="removeEntry('${e.id}')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>`;
+    } else {
+      const bucketColor = e.bucket === 'needs' ? NEEDS_COLOR : WANTS_COLOR;
+      const label = `− ${peso(e.amount)} from ${bucketLabel[e.bucket]}`;
+      return `<div class="entry" style="border-left-color:${bucketColor}">
+        <div class="entry-icon" style="background:${bucketColor}1A;color:${bucketColor}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+        </div>
+        <div class="entry-content">
+          <div class="amt" style="color:${bucketColor}">${label}</div>
+          <div class="meta">${dateStr}${e.note ? ' · ' + escapeHtml(e.note) : ''}</div>
+        </div>
+        <button class="del-btn" onclick="removeEntry('${e.id}')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>`;
+    }
   }).join('');
 }
 
